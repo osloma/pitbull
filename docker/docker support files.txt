@@ -1,0 +1,4 @@
+docker exec -it pitbull_postgres psql -U pitbull -W pitbull
+
+docker-compose down 
+docker-compose up --force-recreate
