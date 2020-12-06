@@ -2,11 +2,13 @@ import io, requests
 import pandas as pd
 from datetime import datetime
 from data.comon import constants
+
     
 custom_date_parser = lambda x: pd.datetime.strptime(x, "%m/%d/%Y")
 
+
 def load_data(): 
-    for f in constants.funds:
+    for f in constants.funds.values():
         url = f"https://ark-funds.com/wp-content/fundsiteliterature/csv/{f}.csv"
         s = requests.get(url).content
         print(f"Downloading file {f} from {url}")
