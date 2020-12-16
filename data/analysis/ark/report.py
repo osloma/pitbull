@@ -31,9 +31,7 @@ class DashBoard():
         )
         return previous_date, current_date
     
-    def __add_stocks(self, fund:str):
-        
-
+    
 #https://mode.com/example-gallery/python_dataframe_styling/
 
     def __add_table(self, previous_date: str, current_date: str, fund: str):
