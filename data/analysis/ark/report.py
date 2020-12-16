@@ -30,12 +30,16 @@ class DashBoard():
             options=values
         )
         return previous_date, current_date
+    
+    def __add_stocks(self, fund:str):
+        
 
 #https://mode.com/example-gallery/python_dataframe_styling/
 
     def __add_table(self, previous_date: str, current_date: str, fund: str):
         data = DataCompare(fund).obtain_differences(previous_date=previous_date, current_date=current_date)
         st.dataframe(data.style.highlight_max(axis=0))
+
 
     def __add_title(self):
         st.markdown("""
@@ -67,7 +71,11 @@ class DashBoard():
                     unsafe_allow_html=True,
                 )
 
+    def __set_layout(self):
+        st.set_page_config(page_title="Pitbull report", page_icon=":ox:", layout="centered")
+
     def run(self):        
+        self.__set_layout()
         fund = self.__add_side_panel()
         previos_date, current_date = self.__add_dates(fund=fund)        
         self.__add_table(previous_date=previos_date, current_date=current_date, fund=fund)

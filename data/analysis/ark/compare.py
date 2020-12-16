@@ -2,7 +2,9 @@ import pandas as pd
 import numpy as np
 from os import listdir
 from os.path import abspath, isfile, join
-from yahoo_fin import stock_info as si
+
+from data.analysis.ark.stock_extractor import StocksPrice
+
 import sys, os
 sys.path.append(".")
 from data.comon import constants
@@ -59,8 +61,8 @@ class DataCompare():
         data = data.merge(prices, on = 'ticker', how = "left")
 
         col_rename = {'shares_diff': 'SHARES(%)', 'ticker': 'TICKER', 'shares_curr': 'SHARES', 
-            'weight_perc_curr': 'WEIGHT', 'weight_perc_diff': 'WEIGHT(%)', 'company_curr': 'COMPANY', 'price': 'PRICE'}
-        col_output = ['COMPANY','TICKER', 'SHARES(%)', 'WEIGHT(%)', 'PRICE', 'WEIGHT', 'SHARES']
+            'weight_perc_curr': 'WEIGHT', 'weight_perc_diff': 'WEIGHT(%)', 'company_curr': 'COMPANY', 'price': 'PRICE', 'reason': 'REASON'}
+        col_output = ['COMPANY','TICKER', 'SHARES(%)', 'WEIGHT(%)', 'PRICE', 'WEIGHT', 'SHARES', 'REASON']
 
         return self.__sort_df_columns_alpha(data).rename(columns=col_rename)[col_output]
 
@@ -70,11 +72,14 @@ class DataCompare():
         """
         tickers = df['ticker'].tolist()
         print(tickers)
-        prices = pd.DataFrame(columns = ['ticker', 'price'])
+        prices = pd.DataFrame(columns = ['ticker', 'price', 'reason'])
         for t in tickers:
             if t == t:
-                price = si.get_live_price(t.split(' ')[0])
-                prices = prices.append({'ticker': t, 'price': price}, ignore_index=True)
+                ticker = t.split(' ')[0]
+                stock = StocksPrice(ticker=ticker, n=20)
+                live_price = stock.get_live_price()
+                reason = stock.get_reason_for_buying_selling()
+                prices = prices.append({'ticker': t, 'price': live_price, 'reason': reason}, ignore_index=True)
         return prices
 
 
