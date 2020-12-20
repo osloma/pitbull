@@ -3,8 +3,6 @@ import numpy as np
 from os import listdir
 from os.path import abspath, isfile, join
 
-from data.analysis.ark.stock_extractor import StocksPrice
-
 import sys, os
 sys.path.append(".")
 from data.comon import constants
@@ -56,35 +54,15 @@ class DataCompare():
         Calculates differences between columns shares and weight in dataframes
         """
         data["weight_perc_diff"] = data["weight_perc_curr"] - data["weight_perc_prev"]    
-        data["shares_diff"] = (data["shares_curr"] - data["shares_prev"])/data["shares_prev"]*100
-        prices = self.__get_stocks_price(data)
-        data = data.merge(prices, on = 'ticker', how = "left")
+        data["shares_diff"] = (data["shares_curr"] - data["shares_prev"])/data["shares_prev"]*100        
 
         col_rename = {'shares_diff': 'SHARES(%)', 'ticker': 'TICKER', 'shares_curr': 'SHARES', 
-            'weight_perc_curr': 'WEIGHT', 'weight_perc_diff': 'WEIGHT(%)', 'company_curr': 'COMPANY', 'price': 'PRICE', 'reason': 'REASON'}
-        col_output = ['COMPANY','TICKER', 'SHARES(%)', 'WEIGHT(%)', 'PRICE', 'WEIGHT', 'SHARES', 'REASON']
+            'weight_perc_curr': 'WEIGHT', 'weight_perc_diff': 'WEIGHT(%)', 'company_curr': 'COMPANY'}
+        col_output = ['COMPANY','TICKER', 'SHARES(%)', 'WEIGHT(%)', 'WEIGHT', 'SHARES']
 
         return self.__sort_df_columns_alpha(data).rename(columns=col_rename)[col_output]
 
-    def __get_stocks_price(self, df):
-        """
-        Obtains real time stock prices 
-        """
-        tickers = df['ticker'].tolist()
-        print(tickers)
-        prices = pd.DataFrame(columns = ['ticker', 'price', 'reason'])
-        for t in tickers:
-            if t == t:
-                ticker = t.split(' ')[0]
-                stock = StocksPrice(ticker=ticker, n=20)
-                live_price = stock.get_live_price()
-                reason = stock.get_reason_for_buying_selling()
-                prices = prices.append({'ticker': t, 'price': live_price, 'reason': reason}, ignore_index=True)
-        return prices
-
-
-    def obtain_differences(self, previous_date, current_date):
-        print("Starting downloading process")    
+    def obtain_differences(self, previous_date, current_date):        
         df = self.__data_per_fund(previous_date, current_date, self.fund)
         return self.__differences_interday(df)
 

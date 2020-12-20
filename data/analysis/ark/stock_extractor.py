@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from yahoo_fin import stock_info as si
 
-class StocksPrice():
+class StockPrice():
     def __init__(self, ticker: str, n: int) -> None:
         self.__ticker = ticker
         self.__n = n
@@ -36,4 +36,5 @@ class StocksPrice():
         # si.get_stats(self.__ticker)        
         return self.__reason()
 
-    
+    def get_analysis(self):        
+        return si.get_stats(self.__ticker).dropna(inplace=False)
