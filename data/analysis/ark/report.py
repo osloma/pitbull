@@ -39,9 +39,20 @@ class DashBoard():
         return previous_date, current_date
 
     def __add_stock(self, c, stocks):
-        return c.selectbox(
+        """Populates stocks on the select box
+
+        Args:
+            c (container): streamline container where to display it
+            stocks (list of strings): list containing the stocks to be shown
+
+        Returns:
+            string: stock/ticker selected
+        """
+        ticker = c.selectbox(
             label="Stock", options=list(stocks)
         )
+        stock = ticker.split(' ')[0]
+        return stock
     
     
 #https://mode.com/example-gallery/python_dataframe_styling/
@@ -85,14 +96,44 @@ class DashBoard():
 
     def __show_analysis(self, c, ticker):
         with c:
-            try:
-                stock = ticker.split(' ')[0]
-                analysis = StockPrice(stock, 10).get_analysis()                
-                live_price = pd.DataFrame({ 'Attribute': 'Price', 'Value': str(StockPrice(stock, 10).get_live_price())}, index =[0])
+            try:                
+                analysis = StockPrice(ticker, 10).get_analysis()                
+                live_price = pd.DataFrame({ 'Attribute': 'Current Price', 'Value': str(StockPrice(ticker, 10).get_live_price())}, index =[0])
                 data = pd.concat([live_price, analysis]).reset_index(drop = True)
                 st.write(data, use_column_width=True)
             except Exception as e:
                 st.write(f"I cannot get the stock for you, sorry. There us a weird exception happening as: {e}")
+            
+    def __show_chart(self, ticker):
+        data = StockPrice(ticker, 10).get_evolution()
+        with st.beta_expander("Show Charts"):
+            st.line_chart(data[['close', 'high', 'low', 'open']])
+            st.line_chart(data['volume'])
+
+    def __show_analyst_info(self, ticker):        
+        def print_container(c, value, df):
+            with c:
+                st.markdown(value)
+                st.write(df[value])
+        
+        data = StockPrice(ticker, 10).analyst_info()
+        #st.write("## Analyst Information :sunglasses:")
+        with st.beta_expander("Show Growth"):
+            c1, c2 = st.beta_columns((1,1))
+            print_container(c1, "Growth Estimates", data)
+            print_container(c2, "Revenue Estimate", data)
+
+        with st.beta_expander("Show Earnings"):
+            c1, c2 = st.beta_columns((1,1))
+            print_container(c1, "Earnings Estimate", data)
+            print_container(c2, "Earnings History", data)
+
+        with st.beta_expander("EPS"):
+            c1, c2 = st.beta_columns((1,1))
+            print_container(c1, "EPS Trend", data)
+            print_container(c2, "EPS Revisions", data)
+            
+        
 
     def run(self):        
         c1, c2, c3, c4 = st.beta_columns((1,1,1,1))
@@ -101,6 +142,8 @@ class DashBoard():
         data = self.__add_table(r2c1, previous_date=previous_date, current_date=current_date, fund=fund)
         ticker = self.__add_stock(c4, data['TICKER'])
         self.__show_analysis(r2c2, ticker)
+        self.__show_chart(ticker)
+        self.__show_analyst_info(ticker)
         
 
 

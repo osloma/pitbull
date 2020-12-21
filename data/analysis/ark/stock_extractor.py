@@ -31,10 +31,17 @@ class StockPrice():
 
         return [x for (x,y) in reason.items() if y][0]
 
+    def get_evolution(self):
+        data = si.get_data(self.__ticker, start_date = '01/01/2018')
+        print(data)
+        return data
+
     def get_reason_for_buying_selling(self) -> str:        
-        self.close_prices = si.get_data(self.__ticker, start_date = '01/01/2020')['close']
-        # si.get_stats(self.__ticker)        
+        self.close_prices = self.get_evolution()
         return self.__reason()
+
+    def analyst_info(self):
+        return si.get_analysts_info(self.__ticker)
 
     def get_analysis(self):        
         return si.get_stats(self.__ticker).dropna(inplace=False)
