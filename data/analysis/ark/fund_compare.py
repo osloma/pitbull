@@ -12,7 +12,7 @@ Important note:
     Following code assumes that there are at least two files under folder 'download'
 """
 
-class DataCompare():
+class ArkCompare():
     __path = os.path.abspath(constants.download_path)
     __colums_to_select = ["ticker", "company", "shares", "weight_perc"]
 
@@ -26,7 +26,6 @@ class DataCompare():
         onlyfiles = [f for f in listdir(self.__path) if isfile(join(self.__path, f))]
         raw_dates = [x[x.index("-")+1:].replace(".csv", "") for x in onlyfiles]
         
-
         return sorted(list(set(map(int, raw_dates))), reverse=True)
 
     def __sort_df_columns_alpha(self, df):
