@@ -66,8 +66,15 @@ class StockOptimizer():
     def portfolio_returns(self, weights):        
         return np.sum(self.__returns.mean() * weights) * 252
 
-    def portfolio_volume(self, weights):        
+    def portfolio_volatility(self, weights):        
+        print(self.__returns)
+        print(self.__returns.cov())
         return np.sqrt(np.dot(weights.T, np.dot(self.__returns.cov() * 252, weights)))
+
+    def portfolio_neg_volatility(self, weights):
+        print(self.__returns)
+        return np.sqrt(np.dot(weights.T, np.dot(self.__returns.cov() * 252, weights)))
+
 
     def min_func_sharpe(self, weights):
         """function that allows us to assess the strength of our portfolio. A value of 1 or higher is considered good
@@ -79,7 +86,7 @@ class StockOptimizer():
             double: if greater than 1, stock is good
         """
         returns = self.portfolio_returns(weights)
-        volumes = self.portfolio_volume(weights)
+        volumes = self.portfolio_volatility(weights)
         return -(returns)/(volumes)
 
     def estimate_portfolio_quality(self):        
@@ -89,7 +96,7 @@ class StockOptimizer():
         eweights = np.array(number_of_assets * [1. / number_of_assets,])
         model = sco.minimize(self.min_func_sharpe, eweights, method='SLSQP', bounds=bounds, constraints=cons)
         returns = self.portfolio_returns(model['x'])*100
-        volatility = self.portfolio_volume(model['x'])*100
+        volatility = self.portfolio_volatility(model['x'])*100
         return {'Returns': returns,
                 "Volatility": volatility,
                 'Sharpe': returns/volatility

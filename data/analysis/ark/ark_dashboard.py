@@ -106,7 +106,7 @@ class ArkDashBoard():
     def __show_chart(self, ticker):
         data = StockPrice(ticker, 10).get_evolution()
         with st.beta_expander("Show Charts"):
-            st.line_chart(data[['close', 'high', 'low', 'open']])
+            st.line_chart(data[['adjclose', 'high', 'low', 'open']])
             st.line_chart(data['volume'])
 
     def __show_analyst_info(self, ticker):        

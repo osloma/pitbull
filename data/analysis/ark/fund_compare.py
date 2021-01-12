@@ -7,6 +7,9 @@ import sys, os
 sys.path.append(".")
 from data.comon import constants
 
+from data.analysis.ark.stock_extractor import StockPrice
+from data.performance import concurrency
+
 """
 Important note:
     Following code assumes that there are at least two files under folder 'download'
@@ -64,6 +67,41 @@ class ArkCompare():
     def obtain_differences(self, previous_date, current_date):        
         df = self.__data_per_fund(previous_date, current_date, self.fund)
         return self.__differences_interday(df)
+
+
+class ArkExtractor():
+    __path = os.path.abspath(constants.download_path)
+
+    def get_all_tickers(self):
+        tickers = pd.Series(dtype="string")
+        for file in os.listdir(self.__path):            
+            t = pd.read_csv(os.path.join(self.__path, file))['ticker']
+            tickers = pd.concat([tickers, t]).drop_duplicates()
+        self.__tickers = tickers.unique()
+        return self.__tickers
+
+#https://medium.com/analytics-vidhya/python-decorator-to-parallelize-any-function-23e5036fb6a
+
+    def __get_analyst_info(self, stock):
+        output = StockPrice(stock, 10).analyst_info()
+        next_quarter_growth = output["Growth Estimates"][stock].iloc[1].replace('%', '').replace(',', '').split('.')[0]
+        next_year_growth = output["Growth Estimates"][stock].iloc[3].replace('%', '').replace(',', '').split('.')[0]
+        return {'ticker': stock, 'next_quarter_growth': int(next_quarter_growth), 'next_year_growth': int(next_year_growth)}
+
+    def get_best_growers(self):
+        tickers = [ticker.split(' ')[0] for ticker in self.__tickers if ticker == ticker and (not ticker.isnumeric())]
+
+        from itertools import islice
+
+        # https://www.geeksforgeeks.org/python-split-a-list-into-sublists-of-given-lengths/
+
+        growth = pd.DataFrame(columns = ['ticker', 'next_quarter_growth', 'next_year_growth'])
+        growth = growth.astype(dtype={'ticker': str, 'next_quarter_growth': int, 'next_year_growth': int}) 
+        for i in range(1,len(tickers)-30, 10):
+            estimates = concurrency.make_parallel(self.__get_analyst_info)(tickers[i:i+10])
+            growth = growth.append(estimates, ignore_index=True)
+        
+        return growth
 
 
 if __name__ == "__main__":
