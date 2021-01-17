@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import math
 from os import listdir
 from os.path import abspath, isfile, join
 
@@ -83,10 +84,18 @@ class ArkExtractor():
 #https://medium.com/analytics-vidhya/python-decorator-to-parallelize-any-function-23e5036fb6a
 
     def __get_analyst_info(self, stock):
+        def clean(value):            
+            result = str(value).replace('%', '').replace(',', '').split('.')[0]
+            try:
+                a = result if result.isnumeric() else 0
+                result = int(a)
+            except:
+                result = f"Not a number {result}"
+            return result
         output = StockPrice(stock, 10).analyst_info()
-        next_quarter_growth = output["Growth Estimates"][stock].iloc[1].replace('%', '').replace(',', '').split('.')[0]
-        next_year_growth = output["Growth Estimates"][stock].iloc[3].replace('%', '').replace(',', '').split('.')[0]
-        return {'ticker': stock, 'next_quarter_growth': int(next_quarter_growth), 'next_year_growth': int(next_year_growth)}
+        next_quarter_growth = clean(output["Growth Estimates"][stock].iloc[1])
+        next_year_growth = clean(output["Growth Estimates"][stock].iloc[3])
+        return {'ticker': stock, 'next_quarter_growth': next_quarter_growth, 'next_year_growth': next_year_growth}
 
     def get_best_growers(self):
         tickers = [ticker.split(' ')[0] for ticker in self.__tickers if ticker == ticker and (not ticker.isnumeric())]
@@ -101,7 +110,7 @@ class ArkExtractor():
             estimates = concurrency.make_parallel(self.__get_analyst_info)(tickers[i:i+10])
             growth = growth.append(estimates, ignore_index=True)
         
-        return growth
+        return growth.sort_values(by="next_quarter_growth", ascending=False)
 
 
 if __name__ == "__main__":

@@ -53,9 +53,8 @@ class StockPrice():
 
 class StockOptimizer():
 
-    def __init__(self, stocks, start_date):
+    def __init__(self, stocks):
         self.__stocks = stocks
-        self.__start_date = start_date
         self.__returns = self.__fetch_stock_returns(self.__stocks)
 
     def __fetch_stock_returns(self, symbols):   

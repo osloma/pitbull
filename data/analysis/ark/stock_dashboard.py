@@ -23,15 +23,13 @@ class StockOptimizerDashboard():
         c1, c2, c3 = st.beta_columns((5, 1, 1))
         with c1:
             stocks = st.text_input("Enter stock names separated by comma")
-            symbols = stocks.replace(" ", "").split(",")
+            symbols = stocks.replace(" ", "").split(",")      
         with c2:
-            now = datetime.datetime.now()
-            selected_date = datetime.date(now.year-1, now.month, now.day)
-            date = st.date_input("From when", value = selected_date, max_value = now)
-        with c3:
             calculate = st.button("Calculate")
+        with c3:            
+            estimate = st.button("Analyst company profit growth")     
 
-        return symbols, date, calculate
+        return symbols, calculate, estimate
 
     def __show_sharpe(self, measures):
         c1, c2, c3, c4, c5, c6, c7 = st.beta_columns((1, 1, 1, 1, 1, 1, 3))
@@ -50,40 +48,31 @@ class StockOptimizerDashboard():
         with c7:
             st.text(">1 good, the bigger the better")
 
-    def __show_top_report(self):
-        symbols, date, calculate = self.__set_inputs()
+    def __show_top_report(self, ark):
+        symbols, calculate, estimate = self.__set_inputs()
         if calculate:
             try:
-                optimum = StockOptimizer(symbols, date).estimate_portfolio_quality()
+                print(symbols)
+                optimum = StockOptimizer(symbols).estimate_portfolio_quality()
                 self.__show_sharpe(optimum)
             except :
                 st.markdown("""
                 ## There must be a ticker that is not correct. Please double check :face_with_thermometer:
                 """)
                 st.error("What are you thinking about, come on, I don't have the whole day!")
+        if estimate:
+            self.__estimate(ark)
 
     def __get_ark_stocks(self):
         ark = ArkExtractor()
         ark.get_all_tickers()
         return ark
-
-    def __best_performers(self):
-        c1, c2, c3 = st.beta_columns((5, 1, 1))
-        with c1:
-            stocks = st.slider("Number of tickers",1,50)
-        with c3:
-            estimate = st.button("Estimate")
-        return stocks, estimate
-
-    def __estimate(self, number_stocks, ark):
+    
+    def __estimate(self, ark):
         df = ark.get_best_growers()
         st.write(df)
 
     def run(self):
         st.balloons()        
-        self.__show_top_report()
-        ark = self.__get_ark_stocks()
-        number_stocks, estimate = self.__best_performers()
-        if estimate:
-            self.__estimate(number_stocks, ark)
-        
+        ark = self.__get_ark_stocks()     
+        self.__show_top_report(ark)
