@@ -53,25 +53,24 @@ class StockPrice():
 
 class StockOptimizer():
 
-    def __init__(self, stocks):
+    def __init__(self, stocks, start='2010-10-10'):
         self.__stocks = stocks
+        self.__start = start
         self.__returns = self.__fetch_stock_returns(self.__stocks)
 
     def __fetch_stock_returns(self, symbols):   
-        prices = ffn.get(symbols, start='2010-10-10')
+        print(self.__start)
+        prices = ffn.get(symbols, start=self.__start)
         #Calculate Daily Returns
         return np.log(prices / prices.shift(1))
 
     def portfolio_returns(self, weights):        
         return np.sum(self.__returns.mean() * weights) * 252
 
-    def portfolio_volatility(self, weights):        
-        print(self.__returns)
-        print(self.__returns.cov())
+    def portfolio_volatility(self, weights):               
         return np.sqrt(np.dot(weights.T, np.dot(self.__returns.cov() * 252, weights)))
 
     def portfolio_neg_volatility(self, weights):
-        print(self.__returns)
         return np.sqrt(np.dot(weights.T, np.dot(self.__returns.cov() * 252, weights)))
 
 

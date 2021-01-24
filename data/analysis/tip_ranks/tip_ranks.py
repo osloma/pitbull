@@ -7,8 +7,13 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class TipRanksAnalysis():
+    analyst_rating_xpath = "//b[@class='client-components-ReactTableWrapper-cells__expertActiveAt']"
+    analyst_profile_xpathdown = "//div[@class='client-components-ReactTableWrapper-cells__RatingPriceTargetChangeUpDownSide client-components-ReactTableWrapper-cells__down']"
+    analyst_profile_xpathup = "//div[@class='client-components-ReactTableWrapper-cells__RatingPriceTargetChangeUpDownSide client-components-ReactTableWrapper-cells__up']"
+    
 
-    def __init__(self, web_driver):
+    def __init__(self):
+        web_driver = webdriver.Chrome()    
         self.web_driver = web_driver        
         self.web_driver.get(self.url)
         self.web_driver.set_window_size(3000,1500)
@@ -28,6 +33,7 @@ class TipRanksAnalysis():
         self.web_driver.find_element(By.CSS_SELECTOR, ".css-1szy77t-control .tipranks-icon").click()
         self.web_driver.find_element(By.CSS_SELECTOR, "#react-select-6-option-4 .tipranks-icon").click()
         self.web_driver.find_element(By.CSS_SELECTOR, ".client-components-stock-research-analysts-style__analysts").click()
+
 
     def run(self):
         pass

@@ -20,16 +20,18 @@ from data.analysis.ark.stock_extractor import StockOptimizer
 class StockOptimizerDashboard():
 
     def __set_inputs(self):
-        c1, c2, c3 = st.beta_columns((5, 1, 1))
+        c1, c2, c3, c4 = st.beta_columns((5, 1, 1, 1))
         with c1:
             stocks = st.text_input("Enter stock names separated by comma")
-            symbols = stocks.replace(" ", "").split(",")      
+            symbols = stocks.replace(" ", "").split(",")                  
         with c2:
-            calculate = st.button("Calculate")
-        with c3:            
+            start_date = st.text_input("From When (yyyy-MM-dd)", "2018-10-10")
+        with c3:
+            calculate = st.button("Calculate")            
+        with c4:            
             estimate = st.button("Analyst company profit growth")     
 
-        return symbols, calculate, estimate
+        return symbols, calculate, estimate, start_date
 
     def __show_sharpe(self, measures):
         c1, c2, c3, c4, c5, c6, c7 = st.beta_columns((1, 1, 1, 1, 1, 1, 3))
@@ -49,10 +51,10 @@ class StockOptimizerDashboard():
             st.text(">1 good, the bigger the better")
 
     def __show_top_report(self, ark):
-        symbols, calculate, estimate = self.__set_inputs()
+        symbols, calculate, estimate, start_date = self.__set_inputs()
         if calculate:
             try:
-                print(symbols)
+                #print(start_date)
                 optimum = StockOptimizer(symbols).estimate_portfolio_quality()
                 self.__show_sharpe(optimum)
             except :

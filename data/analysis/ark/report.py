@@ -6,17 +6,16 @@ from selenium import webdriver
 
 from data.analysis.ark.ark_dashboard import ArkDashBoard
 from data.analysis.ark.stock_dashboard import StockOptimizerDashboard
+from data.analysis.tip_ranks.tip_ranks import TipRanksAnalysis
 
 # export PATH="$HOME/.local/bin:$PATH"
 
 class MainDashboard():
 
-    web_driver = webdriver.Chrome()    
-
     st.set_page_config(page_title="Pitbull report", page_icon=":ox:", layout="wide")
 
     #pages = {'ARK':ArkDashBoard,'Stock Optimizer':StockOptimizerDashboard, "Tip ranks": TipRanksAnalysis}
-    pages = {'ARK':ArkDashBoard,'Stock Optimizer':StockOptimizerDashboard}
+    pages = {'ARK':ArkDashBoard,'Stock Optimizer':StockOptimizerDashboard, 'Tip Ranks': TipRanksAnalysis}
 
     choice = st.radio("Select analysis: ",tuple(pages.keys()))
 

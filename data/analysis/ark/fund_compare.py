@@ -113,5 +113,3 @@ class ArkExtractor():
         return growth.sort_values(by="next_quarter_growth", ascending=False)
 
 
-if __name__ == "__main__":
-    print(DataCompare("Genomic").obtain_differences())
