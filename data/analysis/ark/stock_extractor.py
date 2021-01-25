@@ -9,7 +9,7 @@ import time
 
 class StockPrice():
     def __init__(self, ticker: str, n: int) -> None:
-        self.__ticker = ticker
+        self.__ticker = ticker.split(' ')[0]
         self.__n = n
 
     def get_live_price(self) -> float:        
@@ -36,7 +36,7 @@ class StockPrice():
 
         return [x for (x,y) in reason.items() if y][0]
 
-    def get_evolution(self, start_date = '01/01/2018' ):
+    def get_evolution(self, start_date = '01/01/2018' ):        
         data = si.get_data(self.__ticker, start_date = start_date)
         return data
 

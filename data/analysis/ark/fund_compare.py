@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import math
+import math, glob
 from os import listdir
 from os.path import abspath, isfile, join
 
@@ -51,6 +51,11 @@ class ArkCompare():
         joined = previous_data.merge(current_data, on = "ticker", how = "right", suffixes=("_prev", "_curr"))
 
         return self.__sort_df_columns_alpha(joined)
+
+    def columns_evolution(self, columns):
+        fund_path = os.path.join(self.__path, constants.funds[self.fund])        
+        paths = sorted(glob.glob(f"{fund_path}*.csv"))
+        return pd.concat([pd.read_csv(f) for f in paths], ignore_index = True)[columns]
 
     def __differences_interday(self, data):
         """

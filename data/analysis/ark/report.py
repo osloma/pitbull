@@ -17,6 +17,6 @@ class MainDashboard():
     #pages = {'ARK':ArkDashBoard,'Stock Optimizer':StockOptimizerDashboard, "Tip ranks": TipRanksAnalysis}
     pages = {'ARK':ArkDashBoard,'Stock Optimizer':StockOptimizerDashboard, 'Tip Ranks': TipRanksAnalysis}
 
-    choice = st.radio("Select analysis: ",tuple(pages.keys()))
+    choice = st.selectbox(label="Select analysis: ", options =tuple(pages.keys()))
 
     pages[choice]().run()
