@@ -53,14 +53,15 @@ class StockPrice():
 
 class StockOptimizer():
 
-    def __init__(self, stocks, start='2010-10-10'):
+    def __init__(self, stocks, start):
         self.__stocks = stocks
         self.__start = start
+        print("a")
         self.__returns = self.__fetch_stock_returns(self.__stocks)
 
     def __fetch_stock_returns(self, symbols):   
-        print(self.__start)
         prices = ffn.get(symbols, start=self.__start)
+        #prices = ffn.get(symbols, start='2010-10-10')
         #Calculate Daily Returns
         return np.log(prices / prices.shift(1))
 
@@ -95,6 +96,7 @@ class StockOptimizer():
         model = sco.minimize(self.min_func_sharpe, eweights, method='SLSQP', bounds=bounds, constraints=cons)
         returns = self.portfolio_returns(model['x'])*100
         volatility = self.portfolio_volatility(model['x'])*100
+        print("estimate")
         return {'Returns': returns,
                 "Volatility": volatility,
                 'Sharpe': returns/volatility

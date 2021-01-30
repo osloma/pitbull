@@ -27,7 +27,7 @@ class StockOptimizerDashboard():
         with c2:
             start_date = st.text_input("From When (yyyy-MM-dd)", "2018-10-10")
         with c3:
-            calculate = st.button("Calculate")            
+            calculate = st.button("Calculate")      
         with c4:            
             estimate = st.button("Analyst company profit growth")     
 
@@ -55,13 +55,15 @@ class StockOptimizerDashboard():
         if calculate:
             try:
                 #print(start_date)
-                optimum = StockOptimizer(symbols).estimate_portfolio_quality()
+                print("b")
+                optimum = StockOptimizer(symbols, start_date).estimate_portfolio_quality()
+                print("c")
                 self.__show_sharpe(optimum)
-            except :
+            except Exception as e:
                 st.markdown("""
                 ## There must be a ticker that is not correct. Please double check :face_with_thermometer:
                 """)
-                st.error("What are you thinking about, come on, I don't have the whole day!")
+                st.error(f"What are you thinking about, come on, I don't have the whole day! {e}")
         if estimate:
             self.__estimate(ark)
 

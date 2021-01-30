@@ -13,15 +13,20 @@ class ArkDashBoard():
 
     __titles = ['COMPANY','TICKER', 'SHARE EVOLUTION', 'SHARES(%)', 'WEIGHT EVOLUTION', 'WEIGHT(%)', 'WEIGHT', 'SHARES', 'CHART']
     __order_columns = ['SHARES(%)', 'COMPANY','TICKER', 'WEIGHT(%)', 'WEIGHT', 'SHARES']
+    __performers = [10, 20, 30, 100]
     
-    def __add_filters(self, c1, c2, c3, c4):
+    def __add_filters(self, c1, c2, c3, c4, c5):
         fund = self.__add_funds(c1)
         previous_date, current_date = self.__add_dates(c2, c3, fund)    
+        top = self.__add_top_stocks_filter(c5)
         order_by = self.__add_orderby(c4)
-        return fund, previous_date, current_date, order_by
+        return fund, previous_date, current_date, order_by, top
 
     def __add_orderby(self, c):
         return c.selectbox(label="Order by", options = self.__order_columns)
+
+    def __add_top_stocks_filter(self, c):
+        return c.selectbox(label="Limit top performer to:", options= self.__performers)
 
     def __add_funds(self,c):
         # st.sidebar.title("Pitbull Report")
@@ -63,41 +68,42 @@ class ArkDashBoard():
     
 #https://mode.com/example-gallery/python_dataframe_styling/
 
-    def __add_table(self, previous_date: str, current_date: str, fund: str, order_by='SHARES(%)'):
+    def __add_table(self, previous_date: str, current_date: str, fund: str, order_by='SHARES(%)', top=10):
         data = ArkCompare(fund).obtain_differences(previous_date=previous_date, current_date=current_date).sort_values(by=order_by, ascending=False)
         def columns():
             return st.beta_columns((2,1,3,1,3,1,1,1,3))
 
         evolution = ArkCompare(fund).columns_evolution(["ticker", "shares", "weight(%)"])
-        
         cols = columns()
         for i, col in enumerate(cols):
             cols[i].text(self.__titles[i])
         
-        for i, row in data.iterrows():            
-            c1, c2, c3, c4, c5, c6, c7, c8, c9 = columns()
-            c1.text(row['COMPANY'])
-            c2.text(row['TICKER'])
-            if row['TICKER']==row['TICKER']:
-                shares = evolution.query(f"ticker=='{row['TICKER']}'")[["shares"]].rename(columns = {"shares": f"shares {row['TICKER']}"})
-                c3.area_chart(shares, height=70)
+        for rowid, (i, row) in enumerate(data.iterrows()):
+            if rowid <= top:         
+                c1, c2, c3, c4, c5, c6, c7, c8, c9 = columns()
+                c1.text(row['COMPANY'])
+                c2.text(row['TICKER'])
+                if row['TICKER']==row['TICKER']:
+                    shares = evolution.query(f"ticker=='{row['TICKER']}'")[["shares"]].rename(columns = {"shares": f"shares {row['TICKER']}"})
+                    c3.area_chart(shares, height=70)
+                else:
+                    c9.text("Not available")
+                c4.text(round(row['SHARES(%)'],3))
+                if row['TICKER']==row['TICKER']:
+                    weight = evolution.query(f"ticker=='{row['TICKER']}'")[["weight(%)"]].rename(columns = {"weight(%)": f"weight(%) {row['TICKER']}"})
+                    c5.area_chart(weight, height=70)
+                else:
+                    c9.text("Not available")
+                c6.text(round(row['WEIGHT(%)'],3))
+                c7.text(round(row['WEIGHT'], 3))
+                c8.text(round(row['SHARES'], 3))
+                if row['TICKER']==row['TICKER']:
+                    stock = StockPrice(row['TICKER'], 10).get_evolution('01/07/2019')[['adjclose']].rename(columns={"adjclose":row['TICKER']})
+                    c9.area_chart(stock, height=70)
+                else:
+                    c9.text("Not available")
             else:
-                c9.text("Not available")
-            c4.text(round(row['SHARES(%)'],3))
-            if row['TICKER']==row['TICKER']:
-                weight = evolution.query(f"ticker=='{row['TICKER']}'")[["weight(%)"]].rename(columns = {"weight(%)": f"weight(%) {row['TICKER']}"})
-                c5.area_chart(weight, height=70)
-            else:
-                c9.text("Not available")
-            c6.text(round(row['WEIGHT(%)'],3))
-            c7.text(round(row['WEIGHT'], 3))
-            c8.text(round(row['SHARES'], 3))
-            if row['TICKER']==row['TICKER']:
-                stock = StockPrice(row['TICKER'], 10).get_evolution('01/07/2019')[['adjclose']].rename(columns={"adjclose":row['TICKER']})
-                c9.area_chart(stock, height=70)
-            else:
-                c9.text("Not available")
-            
+                break            
         return data
 
     def __add_title(self):
@@ -170,9 +176,9 @@ class ArkDashBoard():
             print_container(c2, "EPS Revisions", data)
        
     def run(self):        
-        c1, c2, c3, c4 = st.beta_columns((1,1,1,1))
-        fund, previous_date, current_date, order_by = self.__add_filters(c1, c2, c3, c4)
-        data = self.__add_table(previous_date=previous_date, current_date=current_date, fund=fund, order_by=order_by)
+        c1, c2, c3, c4, c5 = st.beta_columns((1,1,1,1,1))
+        fund, previous_date, current_date, order_by, top = self.__add_filters(c1, c2, c3, c4, c5)
+        data = self.__add_table(previous_date=previous_date, current_date=current_date, fund=fund, order_by=order_by, top= top)
         cstock, canalysis = st.beta_columns((1,1))
         ticker = self.__add_stock(cstock, data['TICKER'])
         self.__show_analysis(canalysis, ticker)
