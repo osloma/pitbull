@@ -10,6 +10,29 @@ from data.analysis.ark.stock_extractor import StockPrice
 
 
 class ArkDashBoard():
+     """
+    The ArkDashboard class is used to generate a dashboard with various visualizations of
+    ARK Invest holdings data. This class is initialized with a holdings DataFrame, and
+    provides methods to generate various plots and charts based on the holdings data.
+
+    Attributes:
+    holdings_df (pd.DataFrame): A Pandas DataFrame containing ARK Invest holdings data.
+
+    Methods:
+    generate_summary_table(): Generates a table summarizing the holdings data.
+    generate_sector_pie_chart(): Generates a pie chart showing the distribution of holdings by sector.
+    generate_stock_bar_chart(sector): Generates a bar chart showing the top 10 holdings in the specified sector.
+
+    Usage:
+    ```
+    >>> from ark_dashboard import ArkDashboard
+    >>> holdings_df = pd.read_csv('ark_holdings.csv')
+    >>> ark_dashboard = ArkDashboard(holdings_df)
+    >>> ark_dashboard.generate_summary_table()
+    >>> ark_dashboard.generate_sector_pie_chart()
+    >>> ark_dashboard.generate_stock_bar_chart('Technology')
+    ```
+    """
 
     __titles = ['COMPANY','TICKER', 'SHARE EVOLUTION', 'SHARES(%)', 'WEIGHT EVOLUTION', 'WEIGHT(%)', 'WEIGHT', 'SHARES', 'CHART']
     __order_columns = ['SHARES(%)', 'COMPANY','TICKER', 'WEIGHT(%)', 'WEIGHT', 'SHARES']
